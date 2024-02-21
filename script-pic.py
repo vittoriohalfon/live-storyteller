@@ -13,6 +13,8 @@ api_key = os.getenv('OPENAI_API_KEY')
 # Initialize OpenAI client with your API key
 openai = OpenAI(api_key=api_key)
 
+client = OpenAI()
+
 def capture_image():
     cam = cv2.VideoCapture(0)
     time.sleep(2)  # Warm-up time
@@ -31,15 +33,21 @@ def encode_image_to_base64(frame):
 
 def process_image_with_gpt4(image_base64):
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4-vision-preview",
             messages=[{
                 "role": "user",
-                "content": [{"type": "image", "data": f"data:image/jpeg;base64,{image_base64}"}]
+                "content": [
+                    {"type": "text", "text": "What’s in this image?"},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
+                    ]
             }],
+            max_tokens=100
         )
-        return response.choices[0].message['content']
+        text_description = response.choices[0].message.content
+        return text_description
     except Exception as e:
+        print(response)
         print(f"Error processing image with GPT-4: {e}")
         return None
 
