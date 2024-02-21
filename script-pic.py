@@ -1,12 +1,17 @@
+from dotenv import load_dotenv
+import os
 import cv2
 import time
 import base64
 from openai import OpenAI
-import os
 from text_to_speech import text_to_speech
 
+load_dotenv()
+
+api_key = os.getenv('OPENAI_API_KEY')
+
 # Initialize OpenAI client with your API key
-openai = OpenAI(api_key="your_openai_api_key_here")
+openai = OpenAI(api_key=api_key)
 
 def capture_image():
     cam = cv2.VideoCapture(0)
