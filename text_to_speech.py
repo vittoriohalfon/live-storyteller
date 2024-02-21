@@ -1,4 +1,5 @@
 import threading
+import queue
 from openai import OpenAI
 from dotenv import load_dotenv
 from datetime import datetime
@@ -13,8 +14,22 @@ api_key = os.getenv('OPENAI_API_KEY')
 # Initialize OpenAI client with your API key
 openai = OpenAI(api_key=api_key)
 
+# Initialize a queue for audio file paths
+audio_queue = queue.Queue()
+
+# Worker function to play audio files from the queue
+def audio_player():
+     while True:
+        audio_file_path = audio_queue.get() #Wait for an audio file to be added to the queue
+        playsound(audio_file_path) #Play the audio file
+        audio_queue.task_done() #Mark the task as done
+
+# Start the audio player thread
+threading.Thread(target=audio_player, daemon=True).start()
+
 def play_audio_async(audio_file_path):
-        playsound(audio_file_path)
+        # Add the audio file path to the queue
+        audio_queue.put(audio_file_path)
 
 def text_to_speech(text):
     try:
@@ -31,7 +46,7 @@ def text_to_speech(text):
             audio_file.write(response.content)
 
         # Play audio in a separate thread
-        threading.Thread(target=play_audio_async, args=(audio_file_path,)).start()
+        play_audio_async(audio_file_path)
         return audio_file_path
     
     except Exception as e:
