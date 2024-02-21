@@ -73,9 +73,9 @@ def main():
 
             # Check if there's existing story context to append to
             if story_context:
-                prompt_text = "You're a witty storyteller. Describe the scene in a humorous way."
+                prompt_text = "Describe the scene in a detailed and humorous way."
             else:
-                prompt_text = "You're a witty storyteller. Describe the scene in a humorous way."
+                prompt_text = "You're a witty fictional storyteller. Make a funny and brief joke about the given image (max 400 chars)."
 
             text_description = process_image_with_gpt4(image_base64, prompt_text)
 
