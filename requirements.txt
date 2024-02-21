@@ -1,0 +1,6 @@
+opencv-python
+base64
+openai
+playsound
+python-dotenv
+datetime
