@@ -31,18 +31,18 @@ def encode_image_to_base64(frame):
     _, buffer = cv2.imencode('.jpg', frame)
     return base64.b64encode(buffer).decode('utf-8')
 
-def process_image_with_gpt4(image_base64):
+def process_image_with_gpt4(image_base64, prompt_text):
     try:
         response = client.chat.completions.create(
             model="gpt-4-vision-preview",
             messages=[{
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "What’s in this image?"},
+                    {"type": "text", "text": prompt_text},
                     {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
-                    ]
+                ]
             }],
-            max_tokens=100
+            max_tokens=50
         )
         text_description = response.choices[0].message.content
         return text_description
@@ -52,18 +52,34 @@ def process_image_with_gpt4(image_base64):
         return None
 
 def main():
-    frame = capture_image()
-    if frame is not None:
-        image_base64 = encode_image_to_base64(frame)
-        text_description = process_image_with_gpt4(image_base64)
-        if text_description:
-            print("Generated Text:", text_description)
-            speech_file = text_to_speech(text_description)
-            print(f"Generated speech saved to {speech_file}")
+    story_context = []
+
+    while True:
+        frame = capture_image()
+        if frame is not None:
+            image_base64 = encode_image_to_base64(frame)
+
+            # Check if there's existing story context to append to
+            if story_context:
+                prompt_text = "Continue the funny story based on this image and the previous part: " + story_context[-1]
+            else:
+                prompt_text = "Start a funny story based on this image."
+
+            text_description = process_image_with_gpt4(image_base64, prompt_text)
+
+            if text_description:
+                print("Generated Text:", text_description)
+                story_context.append(text_description) # Append to story context
+                speech_file = text_to_speech(text_description)
+                print(f"Generated speech saved to {speech_file}")
+            else:
+                print("No description was generated.")
         else:
-            print("No description was generated.")
-    else:
-        print("Image capture failed.")
+            print("Image capture failed.")
+
+        # Check if the user wants to continue or break the loop
+        if input("Press Enter to capture another image or type 'quit' to exit: ").lower() == 'quit':
+            break
 
 if __name__ == "__main__":
     main()
