@@ -5,14 +5,22 @@ This project integrates image capturing, AI-powered storytelling, and text-to-sp
 **Features**
 
 Image Capturing: Uses a webcam to capture images continuously.
+
 AI-Driven Storytelling: Leverages OpenAI's GPT-4 API to generate humorous stories based on the captured images.
+
 Text-to-Speech Conversion: Converts the generated stories into speech, narrating them aloud.
+
 Continuous Operation: Runs in a loop, capturing images and generating new story parts without manual intervention until stopped.
 
+
 **Getting Started**
-Prerequisites
+
+Prerequisites:
+
 Python 3.x
+
 OpenAI API Key
+
 Webcam
 
 **Installation**
