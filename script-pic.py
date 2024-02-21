@@ -1,38 +1,56 @@
 import cv2
-import schedule
 import time
 import base64
+from openai import OpenAI
 import os
+from text_to_speech import text_to_speech
+
+# Initialize OpenAI client with your API key
+openai = OpenAI(api_key="your_openai_api_key_here")
 
 def capture_image():
-    # Initialize the webcam
     cam = cv2.VideoCapture(0)
-    
-    # Capture a single frame
+    time.sleep(2)  # Warm-up time
     ret, frame = cam.read()
-    if ret:
-        # Specify the image path
-        image_path = f"selfie_{int(time.time())}.png"
-        # Save the image
-        cv2.imwrite(image_path, frame)
-        
-        # Optionally, encode the image to base64 for API submission
-        with open(image_path, "rb") as image_file:
-            base64_image = base64.b64encode(image_file.read()).decode('utf-8')
-            print(base64_image)  # You can then use this for your API request
-        
-        # Clean up
-        print(f"Captured {image_path}")
-    else:
-        print("Failed to capture image.")
-    
-    # Release the webcam
     cam.release()
+    
+    if not ret:
+        print("Failed to capture image.")
+        return None
+    
+    return frame
 
-# Schedule the capture function every 5 seconds
-schedule.every(5).seconds.do(capture_image)
+def encode_image_to_base64(frame):
+    _, buffer = cv2.imencode('.jpg', frame)
+    return base64.b64encode(buffer).decode('utf-8')
 
-# Keep the script running
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+def process_image_with_gpt4(image_base64):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4-vision-preview",
+            messages=[{
+                "role": "user",
+                "content": [{"type": "image", "data": f"data:image/jpeg;base64,{image_base64}"}]
+            }],
+        )
+        return response.choices[0].message['content']
+    except Exception as e:
+        print(f"Error processing image with GPT-4: {e}")
+        return None
+
+def main():
+    frame = capture_image()
+    if frame is not None:
+        image_base64 = encode_image_to_base64(frame)
+        text_description = process_image_with_gpt4(image_base64)
+        if text_description:
+            print("Generated Text:", text_description)
+            speech_file = text_to_speech(text_description)
+            print(f"Generated speech saved to {speech_file}")
+        else:
+            print("No description was generated.")
+    else:
+        print("Image capture failed.")
+
+if __name__ == "__main__":
+    main()
