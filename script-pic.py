@@ -36,15 +36,26 @@ def process_image_with_gpt4(image_base64, prompt_text):
         response = client.chat.completions.create(
             model="gpt-4-vision-preview",
             messages=[{
+                "role": "system",
+                "content": "You are a witty storyteller. Describe the scene in a humorous way.",
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt_text},
                     {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
                 ]
             }],
-            max_tokens=50
+            max_tokens=120,
         )
+
+        # Log the message being sent to the OpenAI API
+        print(f"Sending payload to OpenAI: {prompt_text}")
+
+        # Extract the text description from the response
         text_description = response.choices[0].message.content
+
+        # Log the received response for debugging
+        print(f"Received response from OpenAI API: {response}")
+
         return text_description
     except Exception as e:
         print(response)
@@ -54,6 +65,7 @@ def process_image_with_gpt4(image_base64, prompt_text):
 def main():
     story_context = []
 
+    print("Starting the image capture and processing loop. Press CTRL+C to exit.")
     while True:
         frame = capture_image()
         if frame is not None:
@@ -61,9 +73,9 @@ def main():
 
             # Check if there's existing story context to append to
             if story_context:
-                prompt_text = "Continue the funny story based on this image and the previous part: " + story_context[-1]
+                prompt_text = "You're a witty storyteller. Describe the scene in a humorous way."
             else:
-                prompt_text = "Start a funny story based on this image."
+                prompt_text = "You're a witty storyteller. Describe the scene in a humorous way."
 
             text_description = process_image_with_gpt4(image_base64, prompt_text)
 
@@ -77,9 +89,8 @@ def main():
         else:
             print("Image capture failed.")
 
-        # Check if the user wants to continue or break the loop
-        if input("Press Enter to capture another image or type 'quit' to exit: ").lower() == 'quit':
-            break
+        # Short delay before capturing the next image
+        time.sleep(5)
 
 if __name__ == "__main__":
     main()
