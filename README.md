@@ -1,7 +1,9 @@
-**Humorous Storyteller with Image Capturing**
+****Humorous Storyteller with Image Capturing****
+
 This project integrates image capturing, AI-powered storytelling, and text-to-speech conversion to create an engaging and humorous narrative based on images captured in real-time. Utilizing OpenAI's GPT-4 for generating stories and its text-to-speech capabilities, the system captures images from a webcam, generates a story for each image, and narrates the story aloud, providing a seamless, entertaining experience.
 
 **Features**
+
 Image Capturing: Uses a webcam to capture images continuously.
 AI-Driven Storytelling: Leverages OpenAI's GPT-4 API to generate humorous stories based on the captured images.
 Text-to-Speech Conversion: Converts the generated stories into speech, narrating them aloud.
