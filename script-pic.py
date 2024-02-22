@@ -25,6 +25,15 @@ def capture_image():
         print("Failed to capture image.")
         return None
     
+    selfies_directory = 'selfies/'
+    if not os.path.exists(selfies_directory):
+        os.makedirs(selfies_directory)
+
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    filename = f"{selfies_directory}selfie-{timestamp}.jpg"
+    cv2.imwrite(filename, frame)
+    print(f"Image saved to {filename}")
+    
     return frame
 
 def encode_image_to_base64(frame):
